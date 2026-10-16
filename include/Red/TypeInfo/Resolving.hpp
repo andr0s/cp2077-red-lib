@@ -104,7 +104,12 @@ consteval auto RemoveMemberPrefix(std::string_view aName)
     return aName;
 }
 
+#if defined(_MSC_VER) && !defined(__clang__)
 constexpr auto ScopedEnumPrefix = "enum RED4ext::";
+#else
+// clang spells the type without the elaborated "enum" keyword: "RED4ext::game::data::StatType".
+constexpr auto ScopedEnumPrefix = "RED4ext::";
+#endif
 constexpr auto ScopedEnumPrefixLength = std::char_traits<char>::length(ScopedEnumPrefix);
 
 consteval bool IsScopedEnumName(const std::string_view& aName)
@@ -117,7 +122,7 @@ consteval auto ExtractScopedEnumName(const char* aName)
 {
     std::array<char, N - ScopedEnumPrefixLength + 1> result{};
 
-    for (auto i = ScopedEnumPrefixLength, j = 0ull; i < N; ++i)
+    for (size_t i = ScopedEnumPrefixLength, j = 0; i < N; ++i)
     {
         if (aName[i] != ':')
         {
@@ -196,7 +201,7 @@ consteval auto GetTypeNameStr()
     else
     {
         constexpr auto fullName = nameof::nameof_full_type<U>();
-        constexpr auto isScopedEnum = Detail::IsScopedEnumName(fullName);
+        constexpr auto isScopedEnum = std::is_enum_v<U> && Detail::IsScopedEnumName(fullName);
 
         if constexpr (isScopedEnum)
         {

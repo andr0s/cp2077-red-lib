@@ -667,7 +667,7 @@ public:
 template<typename TClass>
 class ClassDescriptorDefaultImpl : public ClassDescriptor<TClass>
 {
-    const bool IsEqual(const void* aLhs, const void* aRhs, uint32_t a3) final // 48
+    bool IsEqual(const void* aLhs, const void* aRhs, uint32_t a3) final // 48
     {
         if constexpr (Detail::IsConstructionForwarded<TClass>)
         {
